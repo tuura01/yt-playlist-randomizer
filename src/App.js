@@ -1,11 +1,9 @@
 import './App.css';
-import { gapi } from 'gapi-script';
 import {useState, useEffect, useRef} from 'react';
 import YouTube from 'react-youtube';
-// import "https://apis.google.com/js/client.js?onload=handleClientLoad";
 import { CircularProgress } from '@mui/material';
+import axios from 'axios';
 
-//PLVXKZlRWKBHg0iK2fv-Q6I9gXRJYSRQu7
 function App() {
 
     const [playlistId, setPlaylistId] = useState("");
@@ -38,44 +36,18 @@ function App() {
         }
         setLoading(true);
         setNull();//used if user *re-renders* playlist
-        gapi.client.setApiKey("AIzaSyAI4rkqGLfhOwyO84HRAaDjPGDBvVxjeWM");
-        gapi.client.load('youtube', 'v3').then(getPlaylist)
+        getPlaylist();
     }
 
     const getPlaylist = async () => {
-        let nextPageToken = null;
-        let allVideosInPlaylist = [];
-        let i = 0;
-        do{
-            const request = gapi.client.youtube.playlistItems.list({
-                "part": [
-                    "snippet,contentDetails"
-                    ],
-                    "maxResults": 50,
-                    "playlistId": playlistId,
-                    "pageToken": nextPageToken,
-            });
-            try{
-                const response = await new Promise((resolve,reject) => {
-                    request.execute(resolve);
-                });
-
-                const playlistItems = response.result.items;
-                nextPageToken = response.result.nextPageToken;
-                if(playlistItems){
-                    allVideosInPlaylist = [...allVideosInPlaylist, ...playlistItems];
-                }
-                else{
-                    console.error("No videos in playlist");
-                }
-            } catch(error) {
-                console.error(error);
-            }
-            i = i+1;
-        }while(nextPageToken)
-        localStorage.setItem('playlistId', playlistId);
-        setPlaylist(allVideosInPlaylist);
-    }
+        try {
+          const response = await axios.get(`https://proxy-5evr.onrender.com/api?playlistId=${playlistId}`);
+          setPlaylist(response.data);
+        } catch (error) {
+          console.error(error);
+        }
+        setLoading(false);
+    };
 
     useEffect(() => {
         if (playlist !== null) {
@@ -95,19 +67,6 @@ function App() {
             setLoading(false);
         }
     }, [playlist]);
-
-
-    const opts = {
-        width: '640',
-        height: '390',
-        playerVars: {
-            autoplay: '1',
-            controls: '1',
-            showinfo: '0',
-            rel: '0'
-        },
-
-    }
 
     function shuffle(array) {
         let currentIndex = array.length,  randomIndex;
@@ -191,6 +150,20 @@ function App() {
         });
         setPlaylistId(localStorage.getItem('playlistId'));
     }
+
+    //options for videoplayer
+    const opts = {
+        width: '640',
+        height: '390',
+        playerVars: {
+            autoplay: '1',
+            controls: '1',
+            showinfo: '0',
+            rel: '0'
+        },
+
+    }
+
 
     return (
     <div className="videoList" ref={videoListRef}>
