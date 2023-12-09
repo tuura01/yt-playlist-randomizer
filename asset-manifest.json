@@ -1,14 +1,13 @@
 {
   "files": {
-    "main.css": "/yt-playlist-randomizer/static/css/main.8eb9f405.css",
+    "main.css": "/yt-playlist-randomizer/static/css/main.85d60563.css",
     "main.js": "/yt-playlist-randomizer/static/js/main.383d83e7.js",
-    "static/media/bg.jpg": "/yt-playlist-randomizer/static/media/bg.cc29b59fc5dd922c323a.jpg",
     "index.html": "/yt-playlist-randomizer/index.html",
-    "main.8eb9f405.css.map": "/yt-playlist-randomizer/static/css/main.8eb9f405.css.map",
+    "main.85d60563.css.map": "/yt-playlist-randomizer/static/css/main.85d60563.css.map",
     "main.383d83e7.js.map": "/yt-playlist-randomizer/static/js/main.383d83e7.js.map"
   },
   "entrypoints": [
-    "static/css/main.8eb9f405.css",
+    "static/css/main.85d60563.css",
     "static/js/main.383d83e7.js"
   ]
 }
