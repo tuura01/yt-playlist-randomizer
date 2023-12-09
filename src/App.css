@@ -1,7 +1,9 @@
 body{
-    background-image: url('./bg.jpg');
-    background-attachment: fixed;
-    background-position: center;
+    background-color: rgb(53, 53, 53);
+    overflow-x: hidden;
+    min-width: 640px;
+    margin-left: 20px;
+    margin-top: 20px;
 }
 
 nav ul {
@@ -49,7 +51,7 @@ input{
 
 .currentlyPlaying{
     width: 640px;
-    background-color: white;
+    color: white;
     margin-bottom: 15px;
     margin-top: 15px;
     font-size: 15px;
