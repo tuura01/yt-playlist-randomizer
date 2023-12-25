@@ -1,11 +1,10 @@
 import './App.css';
-import {useState, useEffect, useRef} from 'react';
+import {useState, useEffect, useRef, useCallback} from 'react';
 import YouTube from 'react-youtube';
 import { CircularProgress } from '@mui/material';
 import axios from 'axios';
 
 function App() {
-
     const [playlistId, setPlaylistId] = useState("");
     const [playlist, setPlaylist] = useState(null);
     const [videoData, setVideoData] = useState({
@@ -18,6 +17,7 @@ function App() {
     const [searchedItem, setSearchedItem] = useState(null);
     const videoListRef = useRef(null);
     const [loading, setLoading] = useState(null);
+    const [shuffle, setShuffle] = useState(null);
 
     const setNull = () => {
         setPlaylist(null);
@@ -27,6 +27,7 @@ function App() {
             index: null
         });
         setYoutubePlayer(null);
+        setShuffle(null);
     }
 
     const init = async() => {
@@ -43,32 +44,42 @@ function App() {
         try {
           const response = await axios.get(`https://proxy-5evr.onrender.com/api?playlistId=${playlistId}`);
           setPlaylist(response.data);
+          setShuffle(true);
         } catch (error) {
           console.error(error);
         }
         setLoading(false);
     };
 
+    const updateVideoData = useCallback((callback) => {
+        const shuffledPlaylist = shufflePlaylist(Object.values(playlist));
+        const videoIdsArray = [...shuffledPlaylist.map((item) => item.contentDetails.videoId)];
+        const videoTitles = [...shuffledPlaylist.map((item) => item.snippet.title)];
+
+        setVideoData({
+            videoIdsArray: videoIdsArray,
+            videoTitles: videoTitles,
+            index: 0,
+        });
+
+        localStorage.setItem('videoIdsArray', JSON.stringify(videoIdsArray));
+        localStorage.setItem('videoTitles', JSON.stringify(videoTitles));
+        localStorage.setItem('index', '0');
+        localStorage.setItem('playlist', JSON.stringify(playlist));
+        
+        if(callback !== undefined && typeof callback === 'function'){
+            callback(videoIdsArray[0]);
+        }
+    },[playlist, setVideoData]);
+
     useEffect(() => {
-        if (playlist !== null) {
-
-            const shuffledPlaylist = shuffle(Object.values(playlist));
-            const videoIdsArray = [...shuffledPlaylist.map((item) => item.contentDetails.videoId)];
-            const videoTitles = [...shuffledPlaylist.map((item) => item.snippet.title)];
-
-            setVideoData({
-                videoIdsArray: videoIdsArray,
-                videoTitles: videoTitles,
-                index: 0,
-            });
-            localStorage.setItem('videoIdsArray', JSON.stringify(videoIdsArray));
-            localStorage.setItem('videoTitles', JSON.stringify(videoTitles));
-            localStorage.setItem('index', '0');
+        if (playlist !== null && shuffle === true) {
+            updateVideoData();
             setLoading(false);
         }
-    }, [playlist]);
+    }, [shuffle,playlist,updateVideoData]);
 
-    function shuffle(array) {
+    function shufflePlaylist(array) {
         let currentIndex = array.length,  randomIndex;
 
         // While there remain elements to shuffle.
@@ -98,6 +109,15 @@ function App() {
         }
     }
 
+    const scrollTo = (index) => {
+        const listItem = videoListRef.current.querySelector(`[data-index="${index}"]`);
+    
+        if (listItem) {
+            listItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            setSearchedItem(index);
+        }
+    }
+
     const handleSearch = () => {
         if(searchBar === ""){
             setSearchBar(null);
@@ -109,28 +129,28 @@ function App() {
             .filter((video) => video.title.toLowerCase().includes(searchBar.toLowerCase()))
             .map((video) => video.index);
         if (matchingIndices.length > 0) {
-            const firstResultIndex = matchingIndices[0];
-            const listItem = videoListRef.current.querySelector(`[data-index="${firstResultIndex}"]`);
-    
-            if (listItem) {
-                listItem.scrollIntoView({ behavior: 'smooth' });
-                setSearchedItem(firstResultIndex);
-            }
+            scrollTo(matchingIndices[0]);
         }
     }
 
     const handlePrev = () =>{
-        const index = videoData.index - 1;
-        youtubePlayer.loadVideoById(videoData.videoIdsArray[index]);
-        setVideoData((prev) => ({...prev, index:index}));
-        localStorage.setItem('index', index.toString());
+        if(youtubePlayer !== null){
+            const index = videoData.index - 1;
+            youtubePlayer.loadVideoById(videoData.videoIdsArray[index]);
+            setVideoData((prev) => ({...prev, index:index}));
+            localStorage.setItem('index', index.toString());
+            scrollTo(index);
+        }
     }
 
     const handleNext = () => {
-        const index = videoData.index + 1;
-        youtubePlayer.loadVideoById(videoData.videoIdsArray[index]);
-        setVideoData((prev) => ({...prev, index:index}));
-        localStorage.setItem('index', index.toString());
+        if(youtubePlayer !== null){
+            const index = videoData.index + 1;
+            youtubePlayer.loadVideoById(videoData.videoIdsArray[index]);
+            setVideoData((prev) => ({...prev, index:index}));
+            localStorage.setItem('index', index.toString());
+            scrollTo(index);
+        }
     }
 
     const handleError = () => {
@@ -148,7 +168,19 @@ function App() {
             videoTitles: JSON.parse(localStorage.getItem('videoTitles')),
             index: Number(localStorage.getItem('index'))
         });
-        setPlaylistId(localStorage.getItem('playlistId'));
+
+        setPlaylist(JSON.parse(localStorage.getItem('playlist')));
+    }
+
+    const handleReShuffle = async () => {
+        if(videoData.index === null){
+            alert('no playlist loaded');
+            return;
+        }
+        updateVideoData((videoId) => {
+            youtubePlayer.loadVideoById(videoId);
+            scrollTo(0);
+        });
     }
 
     //options for videoplayer
@@ -164,16 +196,18 @@ function App() {
 
     }
 
-
     return (
     <div className="videoList" ref={videoListRef}>
-        {videoData.index !== null && <YouTube
-            opts={opts}
-            onStateChange={(e) => handleOnStateChange(e)}
-            onReady={(event) => {setYoutubePlayer(event.target); event.target.loadVideoById(videoData.videoIdsArray[videoData.index])}}
-            onError={() => handleError()}
-            >
-        </YouTube>
+        {videoData.index !== null && 
+                //GETPLAYERMODE
+                <YouTube
+                    opts={opts}
+                    onStateChange={(e) => handleOnStateChange(e)}
+                    onReady={(event) => {setYoutubePlayer(event.target); event.target.loadVideoById(videoData.videoIdsArray[videoData.index]); scrollTo(videoData.index)}}
+                    onError={(error) => handleError(error)}
+                    >
+                </YouTube>
+
         }
         {videoData.index !== null && <div className='mediaControls'>
             <button onClick={handlePrev}>Prev</button>
@@ -186,6 +220,7 @@ function App() {
             <label>playlist id:</label>
             <input type='text' value={playlistId} onChange={(e) => setPlaylistId(e.currentTarget.value)}></input>
             <button onClick={init}>load playlist</button>
+            <button id="re-shuffle" onClick={handleReShuffle}>re-shuffle</button>
             {loading === true && <CircularProgress size={'20px'} sx={{marginLeft:'10px', position:'absolute'}}></CircularProgress>}
         </div>
         <div className='searchPlaylist'>
