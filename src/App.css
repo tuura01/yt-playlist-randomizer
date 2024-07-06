@@ -72,8 +72,11 @@ input{
 #searchInput{
     margin-left:91.5px
 }
+.playlistButtons{
+    margin: 6px;
+    margin-left: 200px
+}
 
-
-#re-shuffle{
-    margin-left:6px
+.playlistButtons > button{
+    margin-left: 6px;
 }
