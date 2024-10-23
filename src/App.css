@@ -1,9 +1,15 @@
 body{
     background-color: rgb(53, 53, 53);
-    overflow-x: hidden;
+    overflow: hidden !important;
     min-width: 640px;
     margin-left: 20px;
     margin-top: 20px;
+}
+
+.videoList{
+    height: 100%;
+    width: 640px;
+    justify-items: center;
 }
 
 nav ul {
@@ -26,15 +32,18 @@ li {
 }
 
 label{
-    padding: 10px;
+    position: relative;
+    padding-left: 4px;
+    padding-right: 75px;
+    padding-bottom: 2px;
+    padding-top: 2px;
     color: white;
-
 }
 
 input{
-    width: 300px;
-    margin-right: 10px;
-    margin-left: 70px
+    width: 320px;
+    margin-right: 10px !important; 
+    margin: 0px;
 }
 
 .mediaControls{
@@ -60,7 +69,11 @@ input{
 
 
 .GetPlaylist{
-    position: relative;
+    width: 640px;
+    float: left;
+    margin-left: 10px !important;
+    display: flex;
+    align-items: center;
 }
 
 .otherButtons{
@@ -69,14 +82,52 @@ input{
     text-align: center;
 }
 
-#searchInput{
-    margin-left:91.5px
+.otherButtons > button{
+    margin-left: 6px;
+    padding-left: 8px;
+    padding-right: 8px;
 }
+
+.searchPlaylist{
+    width: 640px;
+    float: left;
+    margin-left: 10px !important;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+}
+
+#searchInput{
+    margin-left: 21.5px;
+}
+
 .playlistButtons{
     margin: 6px;
-    margin-left: 200px
+    align-items: center;
 }
 
 .playlistButtons > button{
     margin-left: 6px;
+    padding-left: 7.5px;
+    padding-right: 7.5px;
+}
+
+#heart {
+    margin-right: 10px;
+    cursor: pointer;
+    color: gray;
+}
+
+#itemContainer{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+button{
+    background-color: none;
+}
+
+.active {
+    background-color: lightblue;
 }
