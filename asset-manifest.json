@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/yt-playlist-randomizer/static/css/main.e8af1439.css",
-    "main.js": "/yt-playlist-randomizer/static/js/main.2cb8f309.js",
+    "main.js": "/yt-playlist-randomizer/static/js/main.58dd1986.js",
     "index.html": "/yt-playlist-randomizer/index.html",
     "main.e8af1439.css.map": "/yt-playlist-randomizer/static/css/main.e8af1439.css.map",
-    "main.2cb8f309.js.map": "/yt-playlist-randomizer/static/js/main.2cb8f309.js.map"
+    "main.58dd1986.js.map": "/yt-playlist-randomizer/static/js/main.58dd1986.js.map"
   },
   "entrypoints": [
     "static/css/main.e8af1439.css",
-    "static/js/main.2cb8f309.js"
+    "static/js/main.58dd1986.js"
   ]
 }
